@@ -1,4 +1,10 @@
-# Golang_Simple_Backdoor
+# Remote administration(windows)
+<div>
+    <h2>To use</h2>
+    <p>Compile the Infection.go file and run it on your computer.On the other, run the file from the command line:</p>
+    <pre>go run Control.go localhost:9999</pre>
+    <p>Next, write the powershell commands...</p>
+</div>
 <div>
     <p>The code in this <a href="https://github.com/ronik-v/Golang_Simple_Backdoor">repository</a> is written FOR EDUCATIONAL PURPOSES ONLY.</p>
     <p><a href="https://github.com/ronik-v">Author</a>
